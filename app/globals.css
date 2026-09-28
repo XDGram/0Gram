@@ -38,60 +38,105 @@ button {
   min-height: 100vh;
   overflow: hidden;
   background: #ffffff;
-  transition: background-color 900ms cubic-bezier(0.16, 1, 0.3, 1);
+  isolation: isolate;
 }
 
-.scene--dark {
-  background: #000000;
+.scene-light,
+.scene-dark {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.scene-light {
+  background:
+    radial-gradient(circle at 83% 9%, rgba(255, 255, 255, 0.96), transparent 24%),
+    radial-gradient(circle at 14% 0%, rgba(255, 255, 255, 1), transparent 38%),
+    linear-gradient(180deg, #ffffff 0%, #fbfbfa 48%, #f2f2ef 100%);
+}
+
+.scene-dark {
+  background:
+    radial-gradient(circle at 84% 10%, rgba(255, 255, 255, 0.035), transparent 19%),
+    linear-gradient(180deg, #050505 0%, #000000 58%, #000000 100%);
+}
+
+.scene::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.14;
+  background-image:
+    radial-gradient(rgba(0, 0, 0, 0.08) 0.45px, transparent 0.45px);
+  background-size: 4px 4px;
+  mix-blend-mode: soft-light;
+}
+
+.scene--dark::after {
+  opacity: 0.08;
+  background-image:
+    radial-gradient(rgba(255, 255, 255, 0.08) 0.45px, transparent 0.45px);
 }
 
 .switch-wrap {
   position: absolute;
-  top: 18px;
-  right: 20px;
+  top: 17px;
+  right: 18px;
   z-index: 10;
-  width: 94px;
-  height: 58px;
+  width: 88px;
+  height: 54px;
+  border-radius: 18px;
 }
 
 .switch-hit {
   position: relative;
   display: block;
-  width: 94px;
-  height: 58px;
+  width: 88px;
+  height: 54px;
   padding: 0;
   border: 0;
   outline: none;
   background: transparent;
   cursor: pointer;
+  touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
 
-.switch-hit::after {
+.switch-hit::before {
   content: "";
   position: absolute;
-  inset: 7px 8px;
+  inset: 9px 10px 7px;
+  z-index: -1;
   border-radius: 999px;
   pointer-events: none;
-  box-shadow:
-    0 12px 26px rgba(0, 0, 0, 0.09),
-    0 2px 7px rgba(0, 0, 0, 0.04);
-  opacity: 0.78;
+  opacity: 0.75;
+  transform: translateY(5px);
+  filter: blur(9px);
+  background: rgba(0, 0, 0, 0.13);
   transition:
-    opacity 600ms ease,
-    box-shadow 600ms ease;
+    background 700ms ease,
+    opacity 700ms ease,
+    transform 220ms ease;
 }
 
-.scene--dark .switch-hit::after {
-  opacity: 0.34;
-  box-shadow:
-    0 14px 28px rgba(0, 0, 0, 0.65),
-    0 0 0 1px rgba(255, 255, 255, 0.035);
+.scene--dark .switch-hit::before {
+  opacity: 0.52;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.switch-hit:hover::before {
+  transform: translateY(7px) scale(1.04);
+}
+
+.switch-hit:active::before {
+  transform: translateY(3px) scale(0.96);
 }
 
 .switch-hit:focus-visible {
   border-radius: 18px;
-  outline: 1px solid rgba(127, 127, 127, 0.72);
+  outline: 1px solid rgba(128, 128, 128, 0.68);
   outline-offset: 3px;
 }
 
@@ -100,33 +145,54 @@ button {
   inset: 0;
   width: 100% !important;
   height: 100% !important;
-  pointer-events: auto;
+  pointer-events: none;
 }
 
-.scene-fade {
+.scene-flash {
   position: absolute;
   inset: 0;
-  z-index: 4;
+  z-index: 5;
   pointer-events: none;
-  background: rgba(127, 127, 127, 0.24);
+}
+
+.scene-flash--dark {
+  background: #000000;
+}
+
+.scene-flash--light {
+  background: #ffffff;
 }
 
 @media (max-width: 640px) {
+  .switch-wrap,
+  .switch-hit {
+    width: 84px;
+    height: 52px;
+  }
+
   .switch-wrap {
     top: 14px;
     right: 14px;
-    width: 88px;
-    height: 54px;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .switch-hit {
+    transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  .switch-hit {
-    width: 88px;
-    height: 54px;
+  .switch-hit:hover {
+    transform: translateY(-1px);
+  }
+
+  .switch-hit:active {
+    transform: translateY(1px) scale(0.985);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .scene {
-    transition-duration: 0.01ms;
+  .switch-hit,
+  .switch-hit::before {
+    transition-duration: 0.01ms !important;
   }
 }
