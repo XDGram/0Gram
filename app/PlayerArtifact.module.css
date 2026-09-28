@@ -1,0 +1,32 @@
+.wrap {
+  position: fixed;
+  left: 50%;
+  top: 51%;
+  width: min(840px, 88vw);
+  height: min(500px, 62vw);
+  max-height: 520px;
+  transform: translate(-50%, -50%);
+  z-index: 4;
+  pointer-events: none;
+}
+
+.wrap canvas {
+  width: 100% !important;
+  height: 100% !important;
+  pointer-events: auto;
+  filter: saturate(0.94) contrast(1.015);
+}
+
+@media (max-width: 720px) {
+  .wrap {
+    width: 96vw;
+    height: 68vw;
+    top: 53%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wrap canvas {
+    filter: none;
+  }
+}
