@@ -50,15 +50,15 @@ button {
 
 .scene-light {
   background:
-    radial-gradient(circle at 82% 8%, rgba(255, 255, 255, 0.98), transparent 23%),
-    radial-gradient(circle at 12% -3%, #ffffff 0%, rgba(255, 255, 255, 0) 38%),
-    linear-gradient(180deg, #ffffff 0%, #fafaf8 50%, #efefeb 100%);
+    radial-gradient(circle at 82% 8%, rgba(255, 255, 255, 0.98), transparent 24%),
+    radial-gradient(circle at 12% -4%, rgba(255, 255, 255, 1), transparent 39%),
+    linear-gradient(180deg, #fdfcf9 0%, #f7f5ef 52%, #ebe8df 100%);
 }
 
 .scene-dark {
   background:
-    radial-gradient(circle at 83% 8%, rgba(255, 255, 255, 0.028), transparent 18%),
-    linear-gradient(180deg, #070707 0%, #010101 54%, #000000 100%);
+    radial-gradient(circle at 83% 8%, rgba(255, 255, 255, 0.024), transparent 18%),
+    linear-gradient(180deg, #060606 0%, #010101 54%, #000000 100%);
 }
 
 .scene-grain {
@@ -66,33 +66,33 @@ button {
   inset: 0;
   z-index: 3;
   pointer-events: none;
-  opacity: 0.12;
+  opacity: 0.14;
   mix-blend-mode: multiply;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.92' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.52'/%3E%3C/svg%3E");
   background-size: 180px 180px;
 }
 
 .scene--dark .scene-grain {
-  opacity: 0.085;
+  opacity: 0.07;
   mix-blend-mode: screen;
   filter: invert(1);
 }
 
 .switch-wrap {
   position: absolute;
-  top: 17px;
-  right: 18px;
+  top: 22px;
+  right: 22px;
   z-index: 10;
-  width: 88px;
-  height: 54px;
-  border-radius: 16px;
+  width: 164px;
+  height: 94px;
+  border-radius: 28px;
 }
 
 .switch-hit {
   position: relative;
   display: block;
-  width: 88px;
-  height: 54px;
+  width: 164px;
+  height: 94px;
   padding: 0;
   border: 0;
   outline: none;
@@ -105,14 +105,14 @@ button {
 .switch-hit::before {
   content: "";
   position: absolute;
-  inset: 10px 8px 5px;
+  inset: 22px 18px 8px;
   z-index: -1;
-  border-radius: 14px;
+  border-radius: 26px;
   pointer-events: none;
-  opacity: 0.72;
-  transform: translateY(5px);
-  filter: blur(7px);
-  background: rgba(0, 0, 0, 0.16);
+  opacity: 0.66;
+  transform: translateY(8px);
+  filter: blur(11px);
+  background: rgba(72, 62, 45, 0.20);
   transition:
     background 700ms ease,
     opacity 700ms ease,
@@ -120,20 +120,12 @@ button {
 }
 
 .scene--dark .switch-hit::before {
-  opacity: 0.34;
-  background: rgba(255, 255, 255, 0.06);
-}
-
-.switch-hit:hover::before {
-  transform: translateY(7px) scale(1.025);
-}
-
-.switch-hit:active::before {
-  transform: translateY(3px) scale(0.97);
+  opacity: 0.42;
+  background: rgba(255, 255, 255, 0.055);
 }
 
 .switch-hit:focus-visible {
-  border-radius: 16px;
+  border-radius: 28px;
   outline: 1px solid rgba(128, 128, 128, 0.68);
   outline-offset: 3px;
 }
@@ -158,19 +150,19 @@ button {
 }
 
 .scene-flash--light {
-  background: #ffffff;
+  background: #fdfcf9;
 }
 
 @media (max-width: 640px) {
   .switch-wrap,
   .switch-hit {
-    width: 84px;
-    height: 52px;
+    width: 148px;
+    height: 86px;
   }
 
   .switch-wrap {
-    top: 14px;
-    right: 14px;
+    top: 16px;
+    right: 16px;
   }
 }
 
@@ -180,11 +172,19 @@ button {
   }
 
   .switch-hit:hover {
-    transform: translateY(-1px);
+    transform: translateY(-2px);
   }
 
   .switch-hit:active {
-    transform: translateY(1px) scale(0.985);
+    transform: translateY(1px) scale(0.992);
+  }
+
+  .switch-hit:hover::before {
+    transform: translateY(10px) scale(1.025);
+  }
+
+  .switch-hit:active::before {
+    transform: translateY(6px) scale(0.985);
   }
 }
 
