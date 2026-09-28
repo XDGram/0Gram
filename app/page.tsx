@@ -21,162 +21,214 @@ function SwitchObject({
   pointer: PointerState;
 }) {
   const root = useRef<THREE.Group>(null);
-  const knob = useRef<THREE.Group>(null);
+  const slider = useRef<THREE.Group>(null);
+  const glow = useRef<THREE.Group>(null);
 
   useFrame((_, delta) => {
-    if (!root.current || !knob.current) return;
+    if (!root.current || !slider.current || !glow.current) return;
 
     const ease = 1 - Math.exp(-delta * 12);
-    const hoverPitch = pointer.hovering ? pointer.y * 0.085 : 0;
-    const hoverYaw = pointer.hovering ? pointer.x * 0.12 : 0;
-    const hoverLift = pointer.hovering ? 0.09 : 0;
+    const hoverPitch = pointer.hovering ? pointer.y * 0.065 : 0;
+    const hoverYaw = pointer.hovering ? pointer.x * 0.095 : 0;
 
     root.current.rotation.x = THREE.MathUtils.lerp(
       root.current.rotation.x,
-      (active ? -0.14 : -0.095) + hoverPitch,
+      -0.105 + hoverPitch,
       ease
     );
 
     root.current.rotation.y = THREE.MathUtils.lerp(
       root.current.rotation.y,
-      (active ? -0.39 : -0.12) + hoverYaw,
+      -0.13 + hoverYaw,
       ease
     );
 
     root.current.rotation.z = THREE.MathUtils.lerp(
       root.current.rotation.z,
-      active ? -0.035 : 0.018,
-      ease
-    );
-
-    root.current.position.x = THREE.MathUtils.lerp(
-      root.current.position.x,
-      pointer.hovering ? pointer.x * 0.035 : 0,
-      ease
-    );
-
-    root.current.position.y = THREE.MathUtils.lerp(
-      root.current.position.y,
-      pointer.hovering ? -pointer.y * 0.025 : 0,
+      pointer.hovering ? pointer.x * 0.018 : 0,
       ease
     );
 
     root.current.position.z = THREE.MathUtils.lerp(
       root.current.position.z,
-      pointer.pressed ? -0.09 : hoverLift,
+      pointer.pressed ? -0.08 : pointer.hovering ? 0.10 : 0,
       ease
     );
 
-    knob.current.position.x = THREE.MathUtils.lerp(
-      knob.current.position.x,
-      active ? 0.67 : -0.67,
+    slider.current.position.x = THREE.MathUtils.lerp(
+      slider.current.position.x,
+      active ? 0.57 : -0.57,
       ease
     );
 
-    knob.current.position.z = THREE.MathUtils.lerp(
-      knob.current.position.z,
-      pointer.pressed ? 0.31 : 0.39,
+    slider.current.position.z = THREE.MathUtils.lerp(
+      slider.current.position.z,
+      pointer.pressed ? 0.34 : 0.43,
       ease
     );
 
-    knob.current.rotation.y = THREE.MathUtils.lerp(
-      knob.current.rotation.y,
-      active ? Math.PI * 0.12 : -Math.PI * 0.04,
+    slider.current.rotation.y = THREE.MathUtils.lerp(
+      slider.current.rotation.y,
+      active ? 0.055 : -0.035,
       ease
     );
 
-    knob.current.rotation.z = THREE.MathUtils.lerp(
-      knob.current.rotation.z,
-      active ? 0.04 : -0.025,
+    glow.current.position.x = THREE.MathUtils.lerp(
+      glow.current.position.x,
+      active ? -0.63 : 0.63,
       ease
     );
   });
 
+  const shell = active ? "#0b0b0b" : "#e5e1d6";
+  const shellBack = active ? "#020202" : "#cbc6b9";
+  const recess = active ? "#141414" : "#aaa596";
+  const sliderBody = active ? "#111111" : "#d7d3c8";
+  const paleFace = active ? "#171717" : "#f0ece3";
+  const taupeFace = active ? "#050505" : "#8d8879";
+  const edge = active ? "#252525" : "#b8b2a4";
+
   return (
     <group ref={root}>
       <RoundedBox
-        args={[2.78, 1.34, 0.16]}
-        radius={0.28}
-        smoothness={6}
-        position={[0, 0, -0.29]}
+        args={[3.52, 1.58, 0.20]}
+        radius={0.46}
+        smoothness={7}
+        position={[0, 0, -0.36]}
+        castShadow
+        receiveShadow
       >
         <meshStandardMaterial
-          color={active ? "#121212" : "#d8d8d4"}
-          roughness={0.78}
-          metalness={0.08}
-        />
-      </RoundedBox>
-
-      <RoundedBox args={[2.58, 1.16, 0.5]} radius={0.30} smoothness={6}>
-        <meshStandardMaterial
-          color={active ? "#080808" : "#ecece8"}
-          roughness={active ? 0.56 : 0.62}
-          metalness={active ? 0.16 : 0.08}
+          color={shellBack}
+          roughness={0.88}
+          metalness={0.02}
         />
       </RoundedBox>
 
       <RoundedBox
-        args={[2.12, 0.72, 0.16]}
-        radius={0.22}
-        smoothness={6}
-        position={[0, 0, 0.26]}
+        args={[3.34, 1.42, 0.48]}
+        radius={0.44}
+        smoothness={7}
+        position={[0, 0, -0.14]}
+        castShadow
+        receiveShadow
       >
         <meshStandardMaterial
-          color={active ? "#171717" : "#c9c9c4"}
-          roughness={0.84}
-          metalness={0.04}
+          color={shell}
+          roughness={0.72}
+          metalness={0.025}
         />
       </RoundedBox>
 
       <RoundedBox
-        args={[1.92, 0.56, 0.08]}
-        radius={0.16}
-        smoothness={5}
-        position={[0, 0, 0.36]}
+        args={[2.93, 1.02, 0.18]}
+        radius={0.35}
+        smoothness={7}
+        position={[0, 0, 0.16]}
+        receiveShadow
       >
         <meshStandardMaterial
-          color={active ? "#030303" : "#b8b8b3"}
-          roughness={0.94}
+          color={recess}
+          roughness={0.92}
           metalness={0}
         />
       </RoundedBox>
 
-      <group ref={knob} position={[-0.67, 0, 0.39]}>
-        <RoundedBox args={[0.84, 0.84, 0.48]} radius={0.19} smoothness={6}>
+      <group ref={glow} position={[0.63, 0, 0.275]}>
+        <RoundedBox
+          args={[1.56, 0.82, 0.19]}
+          radius={0.31}
+          smoothness={7}
+          castShadow
+        >
           <meshStandardMaterial
-            color={active ? "#0c0c0c" : "#f3f3ef"}
-            roughness={active ? 0.46 : 0.52}
-            metalness={active ? 0.22 : 0.06}
+            color="#ef7f2c"
+            emissive="#c94d0b"
+            emissiveIntensity={active ? 0.95 : 1.18}
+            roughness={0.64}
+            metalness={0}
+          />
+        </RoundedBox>
+
+        <pointLight
+          position={[0, 0, 0.62]}
+          intensity={active ? 0.45 : 0.7}
+          distance={2.7}
+          color="#ff8a34"
+        />
+      </group>
+
+      <group ref={slider} position={[-0.57, 0, 0.43]}>
+        <RoundedBox
+          args={[1.72, 1.01, 0.40]}
+          radius={0.32}
+          smoothness={7}
+          castShadow
+          receiveShadow
+        >
+          <meshStandardMaterial
+            color={sliderBody}
+            roughness={0.72}
+            metalness={0.025}
           />
         </RoundedBox>
 
         <RoundedBox
-          args={[0.68, 0.68, 0.055]}
-          radius={0.14}
-          smoothness={5}
-          position={[0, 0, 0.268]}
+          args={[1.56, 0.88, 0.11]}
+          radius={0.27}
+          smoothness={6}
+          position={[0, 0, 0.235]}
+          castShadow
         >
           <meshStandardMaterial
-            color={active ? "#171717" : "#ffffff"}
+            color={edge}
+            roughness={0.82}
+            metalness={0}
+          />
+        </RoundedBox>
+
+        <RoundedBox
+          args={[0.74, 0.80, 0.27]}
+          radius={0.29}
+          smoothness={7}
+          position={[-0.38, 0, 0.34]}
+          castShadow
+        >
+          <meshStandardMaterial
+            color={paleFace}
             roughness={0.66}
+            metalness={0.015}
+          />
+        </RoundedBox>
+
+        <RoundedBox
+          args={[0.78, 0.82, 0.31]}
+          radius={0.34}
+          smoothness={8}
+          position={[0.38, 0, 0.36]}
+          castShadow
+        >
+          <meshStandardMaterial
+            color={taupeFace}
+            roughness={0.74}
             metalness={0.02}
           />
         </RoundedBox>
 
-        <mesh position={[-0.2, 0.2, 0.302]} rotation={[0, 0, -0.72]}>
-          <planeGeometry args={[0.24, 0.04]} />
+        <mesh position={[-0.52, 0.20, 0.49]} rotation={[0, 0, -0.58]}>
+          <planeGeometry args={[0.24, 0.045]} />
           <meshBasicMaterial
-            color={active ? "#656565" : "#ffffff"}
+            color={active ? "#3c3c3c" : "#ffffff"}
             transparent
-            opacity={active ? 0.28 : 0.62}
+            opacity={active ? 0.16 : 0.36}
             depthWrite={false}
           />
         </mesh>
       </group>
 
-      <mesh position={[0, -0.79, -0.18]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[2.35, 0.74]} />
-        <shadowMaterial transparent opacity={active ? 0.34 : 0.16} />
+      <mesh position={[0, -0.88, -0.30]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[2.9, 0.92]} />
+        <shadowMaterial transparent opacity={active ? 0.38 : 0.20} />
       </mesh>
     </group>
   );
@@ -230,39 +282,40 @@ function ThreeSwitch({
       <Canvas
         className="switch-canvas"
         dpr={[1, 2]}
-        camera={{ position: [0, 0.12, 5.6], fov: 29 }}
+        camera={{ position: [0, 0.08, 6.0], fov: 28 }}
         gl={{ antialias: true, alpha: true }}
         shadows
       >
-        <ambientLight intensity={active ? 0.34 : 0.86} />
+        <ambientLight intensity={active ? 0.28 : 0.72} />
 
         <directionalLight
           castShadow
-          position={[-4.5, 5.2, 6.2]}
-          intensity={active ? 3.5 : 4.3}
+          position={[-4.4, 5.7, 6.6]}
+          intensity={active ? 3.1 : 4.2}
           shadow-mapSize-width={1024}
           shadow-mapSize-height={1024}
         />
 
         <directionalLight
-          position={[5.2, -2.8, 2.7]}
-          intensity={active ? 0.48 : 0.82}
+          position={[5.0, -2.5, 3.0]}
+          intensity={active ? 0.42 : 0.72}
         />
 
         <pointLight
-          position={[2.8, 1.8, 4.2]}
-          intensity={active ? 0.8 : 1.0}
+          position={[-2.1, 1.7, 4.0]}
+          intensity={active ? 0.42 : 0.75}
           distance={8}
+          color={active ? "#ffffff" : "#f6f0e4"}
         />
 
         <SwitchObject active={active} pointer={pointer} />
 
         <ContactShadows
-          position={[0, -0.84, -0.42]}
-          opacity={active ? 0.50 : 0.30}
-          scale={3.8}
-          blur={1.65}
-          far={2.4}
+          position={[0, -0.90, -0.52]}
+          opacity={active ? 0.58 : 0.34}
+          scale={4.4}
+          blur={1.45}
+          far={2.8}
         />
       </Canvas>
     </button>
@@ -298,7 +351,7 @@ export default function Home() {
         <motion.div
           key={dark ? "dark-flash" : "light-flash"}
           className={`scene-flash ${dark ? "scene-flash--dark" : "scene-flash--light"}`}
-          initial={{ opacity: 0.18 }}
+          initial={{ opacity: 0.16 }}
           animate={{ opacity: 0 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
