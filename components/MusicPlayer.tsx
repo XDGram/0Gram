@@ -244,20 +244,33 @@ function TransportButton({
   active?: boolean;
 }) {
   const [pressed, setPressed] = useState(false);
+  const button = useRef<THREE.Mesh>(null);
+
+  useFrame((_, delta) => {
+    if (!button.current) return;
+    const target = pressed ? -0.012 : 0;
+    button.current.position.z = THREE.MathUtils.damp(
+      button.current.position.z,
+      target,
+      22,
+      delta
+    );
+  });
 
   return (
     <group position={position}>
       <mesh
+        ref={button}
         rotation={[Math.PI / 2, 0, 0]}
-        position={[0, 0, pressed ? -0.008 : 0]}
+        position={[0, 0, 0]}
         onPointerDown={(event) => {
           event.stopPropagation();
           setPressed(true);
+          onPress();
         }}
         onPointerUp={(event) => {
           event.stopPropagation();
           setPressed(false);
-          onPress();
         }}
         onPointerLeave={() => setPressed(false)}
       >
@@ -462,6 +475,12 @@ function PlayerScene({
 }) {
   const root = useRef<THREE.Group>(null);
   const audio = useRef<HTMLAudioElement | null>(null);
+  const audioContext = useRef<AudioContext | null>(null);
+  const source = useRef<MediaElementAudioSourceNode | null>(null);
+  const bassFilter = useRef<BiquadFilterNode | null>(null);
+  const midFilter = useRef<BiquadFilterNode | null>(null);
+  const trebleFilter = useRef<BiquadFilterNode | null>(null);
+  const gainNode = useRef<GainNode | null>(null);
   const [playing, setPlaying] = useState(false);
   const [track, setTrack] = useState(0);
   const [elapsed, setElapsed] = useState(0);
@@ -474,6 +493,31 @@ function PlayerScene({
   const [smallB, setSmallB] = useState(0.64);
   const [smallC, setSmallC] = useState(0.46);
   const [smallD, setSmallD] = useState(0.72);
+
+  const ensureAudioGraph = () => {
+    const element = audio.current;
+    if (!element || audioContext.current) return;
+    const context = new AudioContext();
+    const mediaSource = context.createMediaElementSource(element);
+    const bass = context.createBiquadFilter();
+    bass.type = "lowshelf";
+    bass.frequency.value = 180;
+    const mid = context.createBiquadFilter();
+    mid.type = "peaking";
+    mid.frequency.value = 1100;
+    mid.Q.value = 0.75;
+    const treble = context.createBiquadFilter();
+    treble.type = "highshelf";
+    treble.frequency.value = 4200;
+    const gain = context.createGain();
+    mediaSource.connect(bass).connect(mid).connect(treble).connect(gain).connect(context.destination);
+    audioContext.current = context;
+    source.current = mediaSource;
+    bassFilter.current = bass;
+    midFilter.current = mid;
+    trebleFilter.current = treble;
+    gainNode.current = gain;
+  };
 
   useEffect(() => {
     const element = new Audio(TRACKS[track].src);
@@ -504,9 +548,39 @@ function PlayerScene({
   }, [dialA]);
 
   useEffect(() => {
+    if (bassFilter.current) bassFilter.current.gain.value = (dialB - 0.5) * 24;
+  }, [dialB]);
+
+  useEffect(() => {
+    if (gainNode.current) gainNode.current.gain.value = 0.65 + loudness * 0.7;
+  }, [loudness]);
+
+  useEffect(() => {
+    if (audio.current) audio.current.playbackRate = 0.8 + tuner * 0.4;
+  }, [tuner, track]);
+
+  useEffect(() => {
+    if (midFilter.current) midFilter.current.gain.value = (smallA - 0.5) * 24;
+  }, [smallA]);
+
+  useEffect(() => {
+    if (trebleFilter.current) trebleFilter.current.gain.value = (smallB - 0.5) * 24;
+  }, [smallB]);
+
+  useEffect(() => {
+    if (bassFilter.current) bassFilter.current.frequency.value = 80 + smallC * 280;
+  }, [smallC]);
+
+  useEffect(() => {
+    if (trebleFilter.current) trebleFilter.current.frequency.value = 2400 + smallD * 6000;
+  }, [smallD]);
+
+  useEffect(() => {
     const element = audio.current;
     if (!element) return;
     if (playing) {
+      ensureAudioGraph();
+      audioContext.current?.resume();
       element.play().catch(() => setPlaying(false));
     } else {
       element.pause();
@@ -529,8 +603,19 @@ function PlayerScene({
   });
 
   const nextTrack = (step: number) => {
-    setPlaying(false);
+    const wasPlaying = playing;
+    audio.current?.pause();
+    if (audioContext.current) {
+      audioContext.current.close();
+      audioContext.current = null;
+      source.current = null;
+      bassFilter.current = null;
+      midFilter.current = null;
+      trebleFilter.current = null;
+      gainNode.current = null;
+    }
     setTrack((current) => (current + step + TRACKS.length) % TRACKS.length);
+    setPlaying(wasPlaying);
   };
 
   return (
