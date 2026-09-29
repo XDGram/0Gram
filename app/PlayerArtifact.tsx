@@ -2,13 +2,11 @@
 
 import { Canvas, useFrame } from "@react-three/fiber";
 import { ContactShadows, RoundedBox } from "@react-three/drei";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
-import { PLAYER_MESH_B64 } from "./playerMeshData";
 import styles from "./PlayerArtifact.module.css";
 
-function decodePlayerGeometry() {
-  const bytes = Uint8Array.from(atob(PLAYER_MESH_B64), c => c.charCodeAt(0));
+function decodePlayerGeometry(bytes: Uint8Array) {
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
 
   const min = [view.getFloat32(0, true), view.getFloat32(4, true), view.getFloat32(8, true)];
@@ -196,8 +194,22 @@ function TransportButton({
 }
 
 function PlayerScene({ dark }: { dark: boolean }) {
-  const geometry = useMemo(() => decodePlayerGeometry(), []);
+  const [geometry, setGeometry] = useState<THREE.BufferGeometry | null>(null);
   const player = useRef<THREE.Group>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/models/player.mesh")
+      .then((response) => {
+        if (!response.ok) throw new Error(`Player mesh failed: ${response.status}`);
+        return response.arrayBuffer();
+      })
+      .then((buffer) => {
+        if (!cancelled) setGeometry(decodePlayerGeometry(new Uint8Array(buffer)));
+      })
+      .catch(console.error);
+    return () => { cancelled = true; };
+  }, []);
 
   const [hovered, setHovered] = useState(false);
   const [playing, setPlaying] = useState(false);
@@ -226,6 +238,8 @@ function PlayerScene({ dark }: { dark: boolean }) {
     ["#f4efe6", "#c45435", "#4b6379", "#201f22"],
     ["#cce8e1", "#6b6cb4", "#f0a469", "#2a2d36"],
   ];
+
+  if (!geometry) return null;
 
   return (
     <group
