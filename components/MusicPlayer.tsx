@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas, ThreeEvent, useFrame } from "@react-three/fiber";
-import { ContactShadows, RoundedBox } from "@react-three/drei";
+import { ContactShadows, RoundedBox, Text } from "@react-three/drei";
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
@@ -338,6 +338,13 @@ function Waveform({ playing, seed }: { playing: boolean; seed: number }) {
   );
 }
 
+const TRACKS = [
+  { title: "PIERCING LIGHT", artist: "LEAGUE OF LEGENDS / MAKO", src: "/audio/piercing-light-slowed.mp3" },
+  { title: "SAINT PABLO", artist: "KANYE WEST / SAMPHA", src: "/audio/saint-pablo.mp3" },
+  { title: "DARK MOTIONS", artist: "MIRAJ", src: "/audio/dark-motions.mp3" },
+  { title: "KILLERS FROM THE NORTHSIDE", artist: "KORDHELL", src: "/audio/killers-northside-sped-up.mp3" },
+];
+
 const palettes = [
   ["#f6c619", "#ef3440", "#157a65", "#26345d"],
   ["#e7a736", "#c15735", "#5b6f58", "#202c45"],
@@ -364,6 +371,36 @@ function Display({
       </RoundedBox>
 
       <Waveform playing={playing} seed={track} />
+
+      <Text
+        position={[-0.31, 0.125, 0.048]}
+        fontSize={0.034}
+        color="#f4f4ed"
+        anchorX="left"
+        anchorY="middle"
+        maxWidth={0.48}
+      >
+        {TRACKS[track].title}
+      </Text>
+      <Text
+        position={[-0.31, 0.083, 0.048]}
+        fontSize={0.021}
+        color="#929b97"
+        anchorX="left"
+        anchorY="middle"
+        maxWidth={0.48}
+      >
+        {TRACKS[track].artist}
+      </Text>
+      <Text
+        position={[-0.31, -0.025, 0.048]}
+        fontSize={0.019}
+        color={playing ? "#dce8df" : "#7e8884"}
+        anchorX="left"
+        anchorY="middle"
+      >
+        {playing ? "PLAYING" : "READY"}
+      </Text>
 
       <mesh position={[-0.005, -0.07, 0.034]}>
         <boxGeometry args={[0.31, 0.006, 0.008]} />
@@ -439,7 +476,7 @@ function PlayerScene({
   });
 
   const nextTrack = (step: number) =>
-    setTrack((current) => (current + step + palettes.length) % palettes.length);
+    setTrack((current) => (current + step + TRACKS.length) % TRACKS.length);
 
   return (
     <group ref={root} scale={1.22}>
