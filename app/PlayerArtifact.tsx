@@ -244,8 +244,8 @@ function PlayerScene({ dark }: { dark: boolean }) {
   return (
     <group
       ref={player}
-      scale={2.22}
-      position={[0, -0.02, 0]}
+      scale={1.52}
+      position={[0, -0.015, 0]}
       onPointerEnter={() => setHovered(true)}
       onPointerLeave={() => setHovered(false)}
     >
@@ -316,7 +316,7 @@ export default function PlayerArtifact() {
     <div className={styles.wrap}>
       <Canvas
         dpr={[1, 2]}
-        camera={{ position: [0, 0.08, 4.8], fov: 31 }}
+        camera={{ position: [0, 0.1, 5.35], fov: 28 }}
         gl={{ antialias: true, alpha: true }}
         shadows
       >

@@ -2,9 +2,9 @@
   position: fixed;
   left: 50%;
   top: 51%;
-  width: min(840px, 88vw);
-  height: min(500px, 62vw);
-  max-height: 520px;
+  width: min(680px, 76vw);
+  height: min(410px, 48vw);
+  max-height: 430px;
   transform: translate(-50%, -50%);
   z-index: 4;
   pointer-events: none;
@@ -19,8 +19,8 @@
 
 @media (max-width: 720px) {
   .wrap {
-    width: 96vw;
-    height: 68vw;
+    width: 86vw;
+    height: 58vw;
     top: 53%;
   }
 }
