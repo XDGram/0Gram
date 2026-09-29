@@ -339,10 +339,8 @@ function Waveform({ playing, seed }: { playing: boolean; seed: number }) {
 }
 
 const TRACKS = [
-  { title: "PIERCING LIGHT", artist: "LEAGUE OF LEGENDS / MAKO", src: "/audio/piercing-light-slowed.mp3" },
-  { title: "SAINT PABLO", artist: "KANYE WEST / SAMPHA", src: "/audio/saint-pablo.mp3" },
-  { title: "DARK MOTIONS", artist: "MIRAJ", src: "/audio/dark-motions.mp3" },
-  { title: "KILLERS FROM THE NORTHSIDE", artist: "KORDHELL", src: "/audio/killers-northside-sped-up.mp3" },
+  { title: "SAINT PABLO", artist: "KANYE WEST / SAMPHA", src: "/audio/Saint Pablo - Kanye West [LYRICS]_128p.mp3" },
+  { title: "PIERCING LIGHT", artist: "LEAGUE OF LEGENDS / MAKO", src: "/audio/videoplayback (1).m4a" },
 ];
 
 const palettes = [
@@ -357,13 +355,23 @@ function Display({
   onPlay,
   onPrev,
   onNext,
+  elapsed,
+  duration,
 }: {
   playing: boolean;
   track: number;
   onPlay: () => void;
   onPrev: () => void;
   onNext: () => void;
+  elapsed: number;
+  duration: number;
 }) {
+  const formatTime = (seconds: number) => {
+    if (!Number.isFinite(seconds)) return "0:00";
+    const minutes = Math.floor(seconds / 60);
+    return `${minutes}:${Math.floor(seconds % 60).toString().padStart(2, "0")}`;
+  };
+  const progress = duration > 0 ? Math.min(elapsed / duration, 1) : 0;
   return (
     <group position={[0.455, 0.225, 0.242]}>
       <RoundedBox args={[0.84, 0.34, 0.055]} radius={0.065} smoothness={6}>
@@ -399,12 +407,16 @@ function Display({
         anchorX="left"
         anchorY="middle"
       >
-        {playing ? "PLAYING" : "READY"}
+        {playing ? "PLAYING" : "READY"}  {formatTime(elapsed)} / {formatTime(duration)}
       </Text>
 
       <mesh position={[-0.005, -0.07, 0.034]}>
         <boxGeometry args={[0.31, 0.006, 0.008]} />
         <meshBasicMaterial color="#979b98" />
+      </mesh>
+      <mesh position={[-0.16 + progress * 0.155, -0.07, 0.039]}>
+        <boxGeometry args={[Math.max(0.004, 0.31 * progress), 0.011, 0.01]} />
+        <meshBasicMaterial color="#f2f2ed" />
       </mesh>
 
       <TransportButton
@@ -449,8 +461,11 @@ function PlayerScene({
   pointer: Point;
 }) {
   const root = useRef<THREE.Group>(null);
+  const audio = useRef<HTMLAudioElement | null>(null);
   const [playing, setPlaying] = useState(false);
   const [track, setTrack] = useState(0);
+  const [elapsed, setElapsed] = useState(0);
+  const [duration, setDuration] = useState(0);
   const [dialA, setDialA] = useState(0.22);
   const [dialB, setDialB] = useState(0.56);
   const [loudness, setLoudness] = useState(0.45);
@@ -459,6 +474,44 @@ function PlayerScene({
   const [smallB, setSmallB] = useState(0.64);
   const [smallC, setSmallC] = useState(0.46);
   const [smallD, setSmallD] = useState(0.72);
+
+  useEffect(() => {
+    const element = new Audio(TRACKS[track].src);
+    element.volume = dialA;
+    audio.current = element;
+    setElapsed(0);
+    setDuration(0);
+    const updateTime = () => setElapsed(element.currentTime);
+    const loaded = () => setDuration(Number.isFinite(element.duration) ? element.duration : 0);
+    const ended = () => {
+      setPlaying(false);
+      setElapsed(element.duration || 0);
+    };
+    element.addEventListener("timeupdate", updateTime);
+    element.addEventListener("loadedmetadata", loaded);
+    element.addEventListener("ended", ended);
+    return () => {
+      element.pause();
+      element.removeEventListener("timeupdate", updateTime);
+      element.removeEventListener("loadedmetadata", loaded);
+      element.removeEventListener("ended", ended);
+      if (audio.current === element) audio.current = null;
+    };
+  }, [track]);
+
+  useEffect(() => {
+    if (audio.current) audio.current.volume = dialA;
+  }, [dialA]);
+
+  useEffect(() => {
+    const element = audio.current;
+    if (!element) return;
+    if (playing) {
+      element.play().catch(() => setPlaying(false));
+    } else {
+      element.pause();
+    }
+  }, [playing, track]);
 
   useFrame((_, delta) => {
     if (!root.current) return;
@@ -475,8 +528,10 @@ function PlayerScene({
     );
   });
 
-  const nextTrack = (step: number) =>
+  const nextTrack = (step: number) => {
+    setPlaying(false);
     setTrack((current) => (current + step + TRACKS.length) % TRACKS.length);
+  };
 
   return (
     <group ref={root} scale={1.22}>
@@ -488,6 +543,8 @@ function PlayerScene({
         onPlay={() => setPlaying((value) => !value)}
         onPrev={() => nextTrack(-1)}
         onNext={() => nextTrack(1)}
+        elapsed={elapsed}
+        duration={duration}
       />
 
       <Dial
