@@ -156,7 +156,7 @@ button { font: inherit; }
 
 .player-stage {
   position: absolute;
-  left: 50%;
+  left: 38%;
   top: 52%;
   z-index: 6;
   width: min(900px, calc(100vw - 44px));
@@ -185,6 +185,7 @@ button { font: inherit; }
 
 @media (max-width: 720px) {
   .player-stage {
+    left: 50%;
     top: 54%;
     width: calc(100vw - 20px);
     aspect-ratio: 1.55 / 1;
